@@ -26,9 +26,6 @@ typedef void (^SVProgressHUDDismissCompletion)(void);
 
 @property (strong, nonatomic, nullable) UIView *containerView;                                          // if nil then use default window level
 @property (assign, nonatomic) CGSize minimumSize UI_APPEARANCE_SELECTOR;                        // default is CGSizeZero, can be used to avoid resizing for a larger message
-@property (assign, nonatomic) CGFloat ringThickness UI_APPEARANCE_SELECTOR;                     // default is 2 pt
-@property (assign, nonatomic) CGFloat ringRadius UI_APPEARANCE_SELECTOR;                        // default is 18 pt
-@property (assign, nonatomic) CGFloat ringNoTextRadius UI_APPEARANCE_SELECTOR;                  // default is 24 pt
 @property (assign, nonatomic) CGFloat cornerRadius UI_APPEARANCE_SELECTOR;                      // default is 14 pt
 @property (strong, nonatomic, nonnull) UIFont *font UI_APPEARANCE_SELECTOR;                     // default is [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline]
 @property (strong, nonatomic, nonnull) UIColor *backgroundColor UI_APPEARANCE_SELECTOR;         // default is [UIColor whiteColor]
@@ -59,9 +56,6 @@ typedef void (^SVProgressHUDDismissCompletion)(void);
 
 + (void)setContainerView:(nullable UIView*)containerView;               // default is window level
 + (void)setMinimumSize:(CGSize)minimumSize;                             // default is CGSizeZero, can be used to avoid resizing for a larger message
-+ (void)setRingThickness:(CGFloat)ringThickness;                        // default is 2 pt
-+ (void)setRingRadius:(CGFloat)radius;                                  // default is 18 pt
-+ (void)setRingNoTextRadius:(CGFloat)radius;                            // default is 24 pt
 + (void)setCornerRadius:(CGFloat)cornerRadius;                          // default is 14 pt
 + (void)setBorderColor:(nonnull UIColor*)color;                         // default is nil
 + (void)setBorderWidth:(CGFloat)width;                                  // default is 0
@@ -90,9 +84,6 @@ typedef void (^SVProgressHUDDismissCompletion)(void);
 
 + (void)show;
 + (void)showWithStatus:(nullable NSString*)status;
-
-+ (void)showProgress:(float)progress;
-+ (void)showProgress:(float)progress status:(nullable NSString*)status;
 
 + (void)setStatus:(nullable NSString*)status; // change the HUD loading status while it's showing
 

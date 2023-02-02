@@ -10,7 +10,6 @@
 #endif
 
 #import "SVProgressHUD.h"
-#import "SVProgressAnimatedView.h"
 
 NSString * const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
 NSString * const SVProgressHUDDidTouchDownInsideNotification = @"SVProgressHUDDidTouchDownInsideNotification";
@@ -42,8 +41,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 @property (nonatomic, strong) UIImageView *imageView;
 
 @property (nonatomic, strong) UIView *indefiniteAnimatedView;
-@property (nonatomic, strong) SVProgressAnimatedView *ringView;
-@property (nonatomic, strong) SVProgressAnimatedView *backgroundRingView;
 
 @property (nonatomic, readwrite) CGFloat progress;
 @property (nonatomic, readwrite) NSUInteger activityCount;
@@ -95,18 +92,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 + (void)setMinimumSize:(CGSize)minimumSize {
     [self sharedView].minimumSize = minimumSize;
-}
-
-+ (void)setRingThickness:(CGFloat)ringThickness {
-    [self sharedView].ringThickness = ringThickness;
-}
-
-+ (void)setRingRadius:(CGFloat)radius {
-    [self sharedView].ringRadius = radius;
-}
-
-+ (void)setRingNoTextRadius:(CGFloat)radius {
-    [self sharedView].ringNoTextRadius = radius;
 }
 
 + (void)setCornerRadius:(CGFloat)cornerRadius {
@@ -208,15 +193,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
 
 + (void)showWithStatus:(NSString*)status {
-    [self showProgress:SVProgressHUDUndefinedProgress status:status];
-}
-
-+ (void)showProgress:(float)progress {
-    [self showProgress:progress status:nil];
-}
-
-+ (void)showProgress:(float)progress status:(NSString*)status {
-    [[self sharedView] showProgress:progress status:status];
+    [[self sharedView] showProgress:SVProgressHUDUndefinedProgress status:status];
 }
 
 #pragma mark - Show, then automatically dismiss methods
@@ -314,8 +291,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         self.imageView.alpha = 0.0f;
         self.statusLabel.alpha = 0.0f;
         self.indefiniteAnimatedView.alpha = 0.0f;
-        self.ringView.alpha = self.backgroundRingView.alpha = 0.0f;
-        
+
 
         _backgroundColor = [UIColor whiteColor];
         _foregroundColor = [UIColor blackColor];
@@ -334,10 +310,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         _successImage = [UIImage imageWithContentsOfFile:[imageBundle pathForResource:@"success" ofType:@"png"]];
         _errorImage = [UIImage imageWithContentsOfFile:[imageBundle pathForResource:@"error" ofType:@"png"]];
 
-        _ringThickness = 2.0f;
-        _ringRadius = 18.0f;
-        _ringNoTextRadius = 24.0f;
-        
         _cornerRadius = 14.0f;
 		
         _graceTimeInterval = 0.0f;
@@ -421,9 +393,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         centerY = CGRectGetMidY(self.hudView.bounds);
     }
     self.indefiniteAnimatedView.center = CGPointMake(CGRectGetMidX(self.hudView.bounds), centerY);
-    if(self.progress != SVProgressHUDUndefinedProgress) {
-        self.backgroundRingView.center = self.ringView.center = CGPointMake(CGRectGetMidX(self.hudView.bounds), centerY);
-    }
     self.imageView.center = CGPointMake(CGRectGetMidX(self.hudView.bounds), centerY);
 
     // Label
@@ -696,33 +665,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
             strongSelf.statusLabel.text = status;
             strongSelf.progress = progress;
             
-            // Choose the "right" indicator depending on the progress
-            if(progress >= 0) {
-                // Cancel the indefiniteAnimatedView, then show the ringLayer
-                [strongSelf cancelIndefiniteAnimatedViewAnimation];
-                
-                // Add ring to HUD
-                if(!strongSelf.ringView.superview){
-                    [strongSelf.hudView.contentView addSubview:strongSelf.ringView];
-                }
-                if(!strongSelf.backgroundRingView.superview){
-                    [strongSelf.hudView.contentView addSubview:strongSelf.backgroundRingView];
-                }
-                
-                // Set progress animated
-                [CATransaction begin];
-                [CATransaction setDisableActions:YES];
-                strongSelf.ringView.strokeEnd = progress;
-                [CATransaction commit];
-                
-                // Update the activity count
-                if(progress == 0) {
-                    strongSelf.activityCount++;
-                }
-            } else {
-                // Cancel the ringLayer animation, then show the indefiniteAnimatedView
-                [strongSelf cancelRingLayerAnimation];
-                
+            {
                 // Add indefiniteAnimatedView to HUD
                 [strongSelf.hudView.contentView addSubview:strongSelf.indefiniteAnimatedView];
                 if([strongSelf.indefiniteAnimatedView respondsToSelector:@selector(startAnimating)]) {
@@ -765,7 +708,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
             
             // Reset progress and cancel any running animation
             strongSelf.progress = SVProgressHUDUndefinedProgress;
-            [strongSelf cancelRingLayerAnimation];
             [strongSelf cancelIndefiniteAnimatedViewAnimation];
             
             // Update imageView
@@ -928,7 +870,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
                     
                     // Reset progress and cancel any running animation
                     strongSelf.progress = SVProgressHUDUndefinedProgress;
-                    [strongSelf cancelRingLayerAnimation];
                     [strongSelf cancelIndefiniteAnimatedViewAnimation];
                     
                     // Remove observer <=> we do not have to handle orientation changes etc.
@@ -1008,48 +949,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     [_indefiniteAnimatedView sizeToFit];
     
     return _indefiniteAnimatedView;
-}
-
-- (SVProgressAnimatedView*)ringView {
-    if(!_ringView) {
-        _ringView = [[SVProgressAnimatedView alloc] initWithFrame:CGRectZero];
-    }
-    
-    // Update styling
-    _ringView.strokeColor = self.foregroundImageColorForStyle;
-    _ringView.strokeThickness = self.ringThickness;
-    _ringView.radius = self.statusLabel.text ? self.ringRadius : self.ringNoTextRadius;
-    
-    return _ringView;
-}
-
-- (SVProgressAnimatedView*)backgroundRingView {
-    if(!_backgroundRingView) {
-        _backgroundRingView = [[SVProgressAnimatedView alloc] initWithFrame:CGRectZero];
-        _backgroundRingView.strokeEnd = 1.0f;
-    }
-    
-    // Update styling
-    _backgroundRingView.strokeColor = [self.foregroundImageColorForStyle colorWithAlphaComponent:0.1f];
-    _backgroundRingView.strokeThickness = self.ringThickness;
-    _backgroundRingView.radius = self.statusLabel.text ? self.ringRadius : self.ringNoTextRadius;
-    
-    return _backgroundRingView;
-}
-
-- (void)cancelRingLayerAnimation {
-    // Animate value update, stop animation
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    
-    [self.hudView.layer removeAllAnimations];
-    self.ringView.strokeEnd = 0.0f;
-    
-    [CATransaction commit];
-    
-    // Remove from view
-    [self.ringView removeFromSuperview];
-    [self.backgroundRingView removeFromSuperview];
 }
 
 - (void)cancelIndefiniteAnimatedViewAnimation {
@@ -1246,7 +1145,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     self.imageView.alpha = 1.0f;
     self.statusLabel.alpha = 1.0f;
     self.indefiniteAnimatedView.alpha = 1.0f;
-    self.ringView.alpha = self.backgroundRingView.alpha = 1.0f;
 }
 
 - (void)fadeOutEffects
@@ -1260,7 +1158,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     self.imageView.alpha = 0.0f;
     self.statusLabel.alpha = 0.0f;
     self.indefiniteAnimatedView.alpha = 0.0f;
-    self.ringView.alpha = self.backgroundRingView.alpha = 0.0f;
 }
 
 #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
@@ -1286,18 +1183,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 - (void)setMinimumSize:(CGSize)minimumSize {
     if (!_isInitializing) _minimumSize = minimumSize;
-}
-
-- (void)setRingThickness:(CGFloat)ringThickness {
-    if (!_isInitializing) _ringThickness = ringThickness;
-}
-
-- (void)setRingRadius:(CGFloat)ringRadius {
-    if (!_isInitializing) _ringRadius = ringRadius;
-}
-
-- (void)setRingNoTextRadius:(CGFloat)ringNoTextRadius {
-    if (!_isInitializing) _ringNoTextRadius = ringNoTextRadius;
 }
 
 - (void)setCornerRadius:(CGFloat)cornerRadius {
