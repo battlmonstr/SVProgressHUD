@@ -62,11 +62,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     static dispatch_once_t once;
     
     static SVProgressHUD *sharedView;
-#if !defined(SV_APP_EXTENSIONS)
     dispatch_once(&once, ^{ sharedView = [[self alloc] initWithFrame:[[[UIApplication sharedApplication] delegate] window].bounds]; });
-#else
-    dispatch_once(&once, ^{ sharedView = [[self alloc] initWithFrame:[[UIScreen mainScreen] bounds]]; });
-#endif
     return sharedView;
 }
 
@@ -148,10 +144,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 + (void)setErrorImage:(UIImage*)image {
     [self sharedView].errorImage = image;
-}
-
-+ (void)setViewForExtension:(UIView*)view {
-    [self sharedView].viewForExtension = view;
 }
 
 + (void)setGraceTimeInterval:(NSTimeInterval)interval {
@@ -438,14 +430,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         if(self.containerView){
             [self.containerView addSubview:self.controlView];
         } else {
-#if !defined(SV_APP_EXTENSIONS)
             [self.frontWindow addSubview:self.controlView];
-#else
-            // If SVProgressHUD is used inside an app extension add it to the given view
-            if(self.viewForExtension) {
-                [self.viewForExtension addSubview:self.controlView];
-            }
-#endif
         }
     } else {
         // The HUD is already on screen, but maybe not in front. Therefore
@@ -530,20 +515,11 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     CGFloat keyboardHeight = 0.0f;
     double animationDuration = 0.0;
 
-#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
+#if TARGET_OS_IOS
     self.frame = [[[UIApplication sharedApplication] delegate] window].bounds;
     UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
-#elif !defined(SV_APP_EXTENSIONS) && !TARGET_OS_IOS
-    self.frame= [UIApplication sharedApplication].keyWindow.bounds;
 #else
-    if (self.viewForExtension) {
-        self.frame = self.viewForExtension.frame;
-    } else {
-        self.frame = UIScreen.mainScreen.bounds;
-    }
-#if TARGET_OS_IOS
-    UIInterfaceOrientation orientation = CGRectGetWidth(self.frame) > CGRectGetHeight(self.frame) ? UIInterfaceOrientationLandscapeLeft : UIInterfaceOrientationPortrait;
-#endif
+    self.frame= [UIApplication sharedApplication].keyWindow.bounds;
 #endif
     
 #if TARGET_OS_IOS
@@ -568,7 +544,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     // Get the currently active frame of the display (depends on orientation)
     CGRect orientationFrame = self.bounds;
 
-#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
+#if TARGET_OS_IOS
     CGRect statusBarFrame = UIApplication.sharedApplication.statusBarFrame;
 #else
     CGRect statusBarFrame = CGRectZero;
@@ -881,7 +857,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
                                                                       userInfo:[strongSelf notificationUserInfo]];
                     
                     // Tell the rootViewController to update the StatusBar appearance
-#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
+#if TARGET_OS_IOS
                     UIViewController *rootController = [[UIApplication sharedApplication] keyWindow].rootViewController;
                     [rootController setNeedsStatusBarAppearanceUpdate];
 #endif
@@ -1002,12 +978,8 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     }
     
     // Update frames
-#if !defined(SV_APP_EXTENSIONS)
     CGRect windowBounds = [[[UIApplication sharedApplication] delegate] window].bounds;
     _controlView.frame = windowBounds;
-#else
-    _controlView.frame = [UIScreen mainScreen].bounds;
-#endif
     
     return _controlView;
 }
@@ -1084,7 +1056,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 #pragma mark - Helper
     
 - (CGFloat)visibleKeyboardHeight {
-#if !defined(SV_APP_EXTENSIONS)
     UIWindow *keyboardWindow = nil;
     for (UIWindow *testWindow in UIApplication.sharedApplication.windows) {
         if(![testWindow.class isEqual:UIWindow.class]) {
@@ -1112,12 +1083,10 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
             }
         }
     }
-#endif
     return 0;
 }
     
 - (UIWindow *)frontWindow {
-#if !defined(SV_APP_EXTENSIONS)
     NSEnumerator *frontToBackWindows = [UIApplication.sharedApplication.windows reverseObjectEnumerator];
     for (UIWindow *window in frontToBackWindows) {
         BOOL windowOnMainScreen = window.screen == UIScreen.mainScreen;
@@ -1129,7 +1098,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
             return window;
         }
     }
-#endif
     return nil;
 }
     
@@ -1223,10 +1191,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 - (void)setErrorImage:(UIImage*)image {
     if (!_isInitializing) _errorImage = image;
-}
-
-- (void)setViewForExtension:(UIView*)view {
-    if (!_isInitializing) _viewForExtension = view;
 }
 
 - (void)setOffsetFromCenter:(UIOffset)offset {
