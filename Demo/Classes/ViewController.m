@@ -143,12 +143,6 @@ static float progress = 0.0f;
 }
 
 - (IBAction)changeAnimationType:(id)sender {
-    UISegmentedControl *segmentedControl = (UISegmentedControl*)sender;
-    if(segmentedControl.selectedSegmentIndex == 0){
-        [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeFlat];
-    } else {
-        [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeNative];
-    }
 }
 
 - (IBAction)changeMaskType:(id)sender {

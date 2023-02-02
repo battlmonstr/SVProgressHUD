@@ -10,7 +10,6 @@
 #endif
 
 #import "SVProgressHUD.h"
-#import "SVIndefiniteAnimatedView.h"
 #import "SVProgressAnimatedView.h"
 
 NSString * const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
@@ -88,10 +87,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 + (void)setStatus:(NSString*)status {
     [[self sharedView] setStatus:status];
-}
-
-+ (void)setDefaultAnimationType:(SVProgressHUDAnimationType)type {
-    [self sharedView].defaultAnimationType = type;
 }
 
 + (void)setContainerView:(nullable UIView*)containerView {
@@ -327,7 +322,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         _backgroundLayerColor = [UIColor colorWithWhite:0 alpha:0.4];
         
         // Set default values
-        _defaultAnimationType = SVProgressHUDAnimationTypeFlat;
         _minimumSize = CGSizeZero;
         _font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
         
@@ -996,23 +990,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 - (UIView*)indefiniteAnimatedView {
     // Get the correct spinner for defaultAnimationType
-    if(self.defaultAnimationType == SVProgressHUDAnimationTypeFlat){
-        // Check if spinner exists and is an object of different class
-        if(_indefiniteAnimatedView && ![_indefiniteAnimatedView isKindOfClass:[SVIndefiniteAnimatedView class]]){
-            [_indefiniteAnimatedView removeFromSuperview];
-            _indefiniteAnimatedView = nil;
-        }
-        
-        if(!_indefiniteAnimatedView){
-            _indefiniteAnimatedView = [[SVIndefiniteAnimatedView alloc] initWithFrame:CGRectZero];
-        }
-        
-        // Update styling
-        SVIndefiniteAnimatedView *indefiniteAnimatedView = (SVIndefiniteAnimatedView*)_indefiniteAnimatedView;
-        indefiniteAnimatedView.strokeColor = self.foregroundImageColorForStyle;
-        indefiniteAnimatedView.strokeThickness = self.ringThickness;
-        indefiniteAnimatedView.radius = self.statusLabel.text ? self.ringRadius : self.ringNoTextRadius;
-    } else {
+    {
         // Check if spinner exists and is an object of different class
         if(_indefiniteAnimatedView && ![_indefiniteAnimatedView isKindOfClass:[UIActivityIndicatorView class]]){
             [_indefiniteAnimatedView removeFromSuperview];
@@ -1301,10 +1279,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
     
 #pragma mark - UIAppearance Setters
-
-- (void)setDefaultAnimationType:(SVProgressHUDAnimationType)animationType {
-    if (!_isInitializing) _defaultAnimationType = animationType;
-}
 
 - (void)setContainerView:(UIView *)containerView {
     if (!_isInitializing) _containerView = containerView;
