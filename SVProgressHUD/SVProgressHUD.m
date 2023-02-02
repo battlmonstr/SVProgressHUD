@@ -62,7 +62,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     static dispatch_once_t once;
     
     static SVProgressHUD *sharedView;
-    dispatch_once(&once, ^{ sharedView = [[self alloc] initWithFrame:[[[UIApplication sharedApplication] delegate] window].bounds]; });
+    dispatch_once(&once, ^{ sharedView = [[self alloc] initWithFrame:CGRectZero]; });
     return sharedView;
 }
 
@@ -515,11 +515,10 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     CGFloat keyboardHeight = 0.0f;
     double animationDuration = 0.0;
 
+    self.frame = self.frontWindow.bounds;
+
 #if TARGET_OS_IOS
-    self.frame = [[[UIApplication sharedApplication] delegate] window].bounds;
     UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
-#else
-    self.frame= [UIApplication sharedApplication].keyWindow.bounds;
 #endif
     
 #if TARGET_OS_IOS
@@ -858,7 +857,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
                     
                     // Tell the rootViewController to update the StatusBar appearance
 #if TARGET_OS_IOS
-                    UIViewController *rootController = [[UIApplication sharedApplication] keyWindow].rootViewController;
+                    UIViewController *rootController = self.frontWindow.rootViewController;
                     [rootController setNeedsStatusBarAppearanceUpdate];
 #endif
                     
@@ -978,7 +977,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     }
     
     // Update frames
-    CGRect windowBounds = [[[UIApplication sharedApplication] delegate] window].bounds;
+    CGRect windowBounds = self.frontWindow.bounds;
     _controlView.frame = windowBounds;
     
     return _controlView;
