@@ -17,12 +17,6 @@ extern NSString * _Nonnull const SVProgressHUDDidAppearNotification;
 
 extern NSString * _Nonnull const SVProgressHUDStatusUserInfoKey;
 
-typedef NS_ENUM(NSInteger, SVProgressHUDStyle) {
-    SVProgressHUDStyleLight NS_SWIFT_NAME(light),   // default style, white HUD with black text, HUD background will be blurred
-    SVProgressHUDStyleDark NS_SWIFT_NAME(dark),     // black HUD and white text, HUD background will be blurred
-    SVProgressHUDStyleCustom NS_SWIFT_NAME(custom)  // uses the fore- and background color properties
-};
-
 typedef NS_ENUM(NSUInteger, SVProgressHUDAnimationType) {
     SVProgressHUDAnimationTypeFlat NS_SWIFT_NAME(flat),     // default animation type, custom flat animation (indefinite animated ring)
     SVProgressHUDAnimationTypeNative NS_SWIFT_NAME(native)  // iOS native UIActivityIndicatorView
@@ -35,7 +29,6 @@ typedef void (^SVProgressHUDDismissCompletion)(void);
 
 #pragma mark - Customization
 
-@property (assign, nonatomic) SVProgressHUDStyle defaultStyle UI_APPEARANCE_SELECTOR;                   // default is SVProgressHUDStyleLight
 @property (assign, nonatomic) SVProgressHUDAnimationType defaultAnimationType UI_APPEARANCE_SELECTOR;   // default is SVProgressHUDAnimationTypeFlat
 @property (strong, nonatomic, nullable) UIView *containerView;                                          // if nil then use default window level
 @property (assign, nonatomic) CGSize minimumSize UI_APPEARANCE_SELECTOR;                        // default is CGSizeZero, can be used to avoid resizing for a larger message
@@ -70,7 +63,6 @@ typedef void (^SVProgressHUDDismissCompletion)(void);
 
 @property (class, strong, nonatomic, readonly, nonnull) NSBundle *imageBundle;
 
-+ (void)setDefaultStyle:(SVProgressHUDStyle)style;                      // default is SVProgressHUDStyleLight
 + (void)setDefaultAnimationType:(SVProgressHUDAnimationType)type;       // default is SVProgressHUDAnimationTypeFlat
 + (void)setContainerView:(nullable UIView*)containerView;               // default is window level
 + (void)setMinimumSize:(CGSize)minimumSize;                             // default is CGSizeZero, can be used to avoid resizing for a larger message

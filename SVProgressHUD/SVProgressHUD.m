@@ -90,10 +90,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     [[self sharedView] setStatus:status];
 }
 
-+ (void)setDefaultStyle:(SVProgressHUDStyle)style {
-    [self sharedView].defaultStyle = style;
-}
-
 + (void)setDefaultAnimationType:(SVProgressHUDAnimationType)type {
     [self sharedView].defaultAnimationType = type;
 }
@@ -136,22 +132,18 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 + (void)setForegroundColor:(UIColor*)color {
     [self sharedView].foregroundColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
 }
 
 + (void)setForegroundImageColor:(UIColor *)color {
     [self sharedView].foregroundImageColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
 }
 
 + (void)setBackgroundColor:(UIColor*)color {
     [self sharedView].backgroundColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
 }
 
 + (void)setHudViewCustomBlurEffect:(UIBlurEffect*)blurEffect {
     [self sharedView].hudViewCustomBlurEffect = blurEffect;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
 }
 
 + (void)setBackgroundLayerColor:(UIColor*)color {
@@ -335,7 +327,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         _backgroundLayerColor = [UIColor colorWithWhite:0 alpha:0.4];
         
         // Set default values
-        _defaultStyle = SVProgressHUDStyleLight;
         _defaultAnimationType = SVProgressHUDAnimationTypeFlat;
         _minimumSize = CGSizeZero;
         _font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
@@ -1109,13 +1100,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
 
 - (UIColor*)foregroundColorForStyle {
-    if(self.defaultStyle == SVProgressHUDStyleLight) {
-        return [UIColor blackColor];
-    } else if(self.defaultStyle == SVProgressHUDStyleDark) {
-        return [UIColor whiteColor];
-    } else {
-        return self.foregroundColor;
-    }
+    return self.foregroundColor;
 }
 
 - (UIColor*)foregroundImageColorForStyle {
@@ -1127,13 +1112,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
 
 - (UIColor*)backgroundColorForStyle {
-    if(self.defaultStyle == SVProgressHUDStyleLight) {
-        return [UIColor whiteColor];
-    } else if(self.defaultStyle == SVProgressHUDStyleDark) {
-        return [UIColor blackColor];
-    } else {
-        return self.backgroundColor;
-    }
+    return self.backgroundColor;
 }
 
 - (UIControl*)controlView {
@@ -1278,18 +1257,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
     
 - (void)fadeInEffects {
-    if(self.defaultStyle != SVProgressHUDStyleCustom) {
-        // Add blur effect
-        UIBlurEffectStyle blurEffectStyle = self.defaultStyle == SVProgressHUDStyleDark ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
-        UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurEffectStyle];
-        self.hudView.effect = blurEffect;
-        
-        // We omit UIVibrancy effect and use a suitable background color as an alternative.
-        // This will make everything more readable. See the following for details:
-        // https://www.omnigroup.com/developer/how-to-make-text-in-a-uivisualeffectview-readable-on-any-background
-        
-        self.hudView.backgroundColor = [self.backgroundColorForStyle colorWithAlphaComponent:0.6f];
-    } else {
+    {
         self.hudView.effect = self.hudViewCustomBlurEffect;
         self.hudView.backgroundColor =  self.backgroundColorForStyle;
     }
@@ -1305,11 +1273,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 - (void)fadeOutEffects
 {
-    if(self.defaultStyle != SVProgressHUDStyleCustom) {
-        // Remove blur effect
-        self.hudView.effect = nil;
-    }
-
     // Remove background color
     self.hudView.backgroundColor = [UIColor clearColor];
     
@@ -1338,10 +1301,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
     
 #pragma mark - UIAppearance Setters
-
-- (void)setDefaultStyle:(SVProgressHUDStyle)style {
-    if (!_isInitializing) _defaultStyle = style;
-}
 
 - (void)setDefaultAnimationType:(SVProgressHUDAnimationType)animationType {
     if (!_isInitializing) _defaultAnimationType = animationType;

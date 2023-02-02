@@ -140,12 +140,6 @@ static float progress = 0.0f;
 #pragma mark - Styling
 
 - (IBAction)changeStyle:(id)sender {
-    UISegmentedControl *segmentedControl = (UISegmentedControl*)sender;
-    if(segmentedControl.selectedSegmentIndex == 0){
-        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleLight];
-    } else {
-        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    }
 }
 
 - (IBAction)changeAnimationType:(id)sender {
